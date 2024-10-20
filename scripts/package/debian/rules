@@ -16,6 +16,7 @@ binary-indep: build-indep
 binary-arch: build-arch
 	$(MAKE) -f $(srctree)/Makefile ARCH=$(ARCH) \
 	KERNELRELEASE=$(KERNELRELEASE) \
+	CROSS_COMPILE=$(CROSS_COMPILE) \
 	run-command KBUILD_RUN_COMMAND=+$(srctree)/scripts/package/builddeb
 
 .PHONY: build build-indep build-arch
@@ -24,6 +25,7 @@ build-indep:
 build-arch:
 	$(MAKE) -f $(srctree)/Makefile ARCH=$(ARCH) \
 	KERNELRELEASE=$(KERNELRELEASE) \
+	CROSS_COMPILE=$(CROSS_COMPILE) \
 	$(shell $(srctree)/scripts/package/deb-build-option) \
 	olddefconfig all
 

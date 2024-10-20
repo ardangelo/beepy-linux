@@ -165,6 +165,52 @@ install_kernel_headers () {
 
 	mkdir -p $pdir/lib/modules/$version/
 	ln -s /usr/src/linux-headers-$version $pdir/lib/modules/$version/build
+
+    # Fix cross-compiled binaries
+	# Cross-compiling kernel will result in some utilities being built for host system
+	# https://github.com/raspberrypi/linux/issues/3279
+	if [ ! -z "$CROSS_COMPILE" ]; then
+		set -e
+
+		# Get host architecture
+		host_arch=$(file -bL $(which ${CROSS_COMPILE}gcc) | awk -F ', ' "{print \$2}")
+		if [ -z "$host_arch" ]; then
+			echo Could not detect host architecture from ${CROSS_COMPILE}gcc
+			exit 1
+		fi
+
+		# Build binary fix list
+		package_prefix=$pdir/usr/src/linux-headers-$version/
+		binaries=""
+		for binary in $(find $package_prefix -type f -executable); do
+			if [ "$(file -b $binary | awk -F ', ' '{print $2}')" = "$host_arch" ]; then
+				binaries="$binaries $binary"
+				rm ${binary#$package_prefix}
+			fi
+		done
+
+		# Log binaries to rebuild
+		if [ ! -z "$binaries" ]; then
+			echo "Rebuilding binaries for $ARCH (was $host_arch):"
+			for binary in ${binaries}; do
+				echo ${binary#$package_prefix}
+			done
+		fi
+
+		# Run rebuild
+		$MAKE -f $srctree/Makefile ARCH=$ARCH \
+			CROSS_COMPILE=$CROSS_COMPILE \
+			HOSTCC=${CROSS_COMPILE}gcc HOSTLD=${CROSS_COMPILE}ld modules_prepare
+
+		# Copy to packaging directory
+		for binary in ${binaries}; do
+			if ! cp ${binary#$package_prefix} $binary; then
+				echo warning: failed to rebuild ${binary#$package_prefix}
+			fi
+		done
+
+		set +e
+	fi
 }
 
 install_libc_headers () {
