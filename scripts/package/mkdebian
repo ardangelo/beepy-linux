@@ -180,6 +180,10 @@ extra_build_depends=", $(if_enabled_echo CONFIG_UNWINDER_ORC libelf-dev:native)"
 extra_build_depends="$extra_build_depends, $(if_enabled_echo CONFIG_SYSTEM_TRUSTED_KEYRING libssl-dev:native)"
 
 # Generate a simple changelog template
+if [ -f "$DEBCHANGELOG" ]; then
+	cp $DEBCHANGELOG debian/changelog
+else
+
 cat <<EOF > debian/changelog
 $sourcename ($packageversion) $distribution; urgency=low
 
@@ -187,6 +191,8 @@ $sourcename ($packageversion) $distribution; urgency=low
 
  -- $maintainer  $(date -R)
 EOF
+
+fi
 
 # Generate copyright file
 cat <<EOF > debian/copyright
