@@ -1,0 +1,33 @@
+# Beepy Custom Kernel
+
+Kernel configuration at `arch/arm/configs/beepy_defconfig`
+
+## Build kernel
+
+```
+KERNEL=kernel7l make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- O=output_dir beepy_defconfig
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- O=output_dir zImage modules dtbs
+```
+
+## Package kernel
+
+Edit `changelog` as needed.
+
+```
+DEBCHANGELOG=$PWD/changelog make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- O=output_dir deb-pkg
+```
+
+## Install kernel
+
+Install all `linux-*.deb` packages.
+
+Select kernel in `/boot/firmware/config.txt`:
+
+```
+kernel=$(ls /boot/firmware | grep -E 'vmlinuz-[0-9\.]+beepy-v7l\+')
+initrd=$(ls /boot/firmware | grep -E 'initrd.img-[0-9\.]+beepy-v7l\+')
+cat << EOF >> /boot/firmware/config.txt
+kernel=$kernel
+initramfs $initrd followkernel
+EOF
+```
