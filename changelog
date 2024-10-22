@@ -1,5 +1,11 @@
+linux-upstream (6.6.57beepy-g527d6f5a7861-3) bookworm; urgency=low
+
+  * Apply Buildroot customized config
+
+ -- Andrew D'Angelo <dangeloandrew@outlook.com>  Mon, 21 Oct 2024 19:13:52 -0500
+
 linux-upstream (6.6.57beepy-g527d6f5a7861-2) bookworm; urgency=low
 
-  * Custom built Linux kernel.
+  * Custom built Linux kernel
 
  -- Andrew D'Angelo <dangeloandrew@outlook.com>  Sun, 20 Oct 2024 07:23:25 -0500
